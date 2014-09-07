@@ -1,0 +1,9 @@
+{
+    "output": "anno.phar",
+    "main": "bin/main.php",
+    "files": [
+        "lib/SimpleAnnotation.php",
+        "lib/SimpleAnnotationParser.php"
+    ],
+    "stub": true
+}

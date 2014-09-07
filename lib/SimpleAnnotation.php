@@ -18,16 +18,6 @@ class SimpleAnnotation {
             include $options['bootstrap'];
         }
 
-        if (empty($options['output']))
-        {
-            $options['output'] = 'output';
-        }
-
-        if (!is_dir($options['output']) && !mkdir($options['output'], 0755, true))
-        {
-            SimpleAnnotation::message('Cannot create `' . $options['output'] . '`.', true);
-        }
-
         $this->_options = $options;
     }
 
@@ -94,10 +84,11 @@ class SimpleAnnotation {
 
     public function filter(array $files)
     {
+        $output = array();
+
         foreach ($files as $file)
         {
             SimpleAnnotation::message('Evaluating `' . $file .'`...');
-            $output = array();
             $declared_classes = get_declared_classes();
             include $file;
             $classes = array_diff(get_declared_classes(), $declared_classes);
@@ -109,7 +100,51 @@ class SimpleAnnotation {
                     $this->parseClass(new ReflectionClass($class), $output);
                 }
             }
+            else
+            {
+                $this->parseSimple($file, $output);
+            }
         }
+
+        return $output;
+    }
+
+    public function parseSimple($file, array & $output = array())
+    {
+        $tokens = token_get_all(file_get_contents($file));
+
+        $i = 0;
+
+        $contents = array();
+
+        foreach ($tokens as $token)
+        {
+            if (T_DOC_COMMENT !== $token[0])
+            {
+                continue;
+            }
+
+            $comment = $token[1];
+
+            if (0 === $i ++)
+            {
+                $doc = SimpleAnnotationParser::classComment($comment);
+
+                if (empty($doc['package']) || !empty($doc['ignore']))
+                {
+                    SimpleAnnotation::message('File `' . $file .'` ignored: Implied or does not belong to a package.');
+                    return false;
+                }
+
+                continue;
+            }
+
+            $contents[] = SimpleAnnotationParser::methodComment($comment);
+        }
+
+        $doc['contents'] = $contents;
+
+        $output[] = $doc;
     }
 
     public function parseClass(ReflectionClass $object, array & $output = array())
@@ -176,6 +211,6 @@ class SimpleAnnotation {
                 : $object->getShortName(),
             '_');
 
-        $doc = array_merge($doc, SimpleAnnotationParser::methodComment($comments));
+        $output = array_merge($doc, SimpleAnnotationParser::methodComment($comments));
     }
 }

@@ -55,16 +55,16 @@ class SimpleAnnotationParser {
 
         SimpleAnnotationParser::_params($comment, $output);
         SimpleAnnotationParser::_APIResponse($comment, $output);
+        SimpleAnnotationParser::_return($comment, $output);
 
         $output['description'] = SimpleAnnotationParser::_strip($comment);
 
-        var_dump($comment);
         return $output;
     }
 
     protected static function _singleFlag($anno, & $comment, array & $output)
     {
-        $regex = '/@' . $anno . '\s+(.*)/';
+        $regex = '/@' . $anno . '\ +(.*)/';
         $status = preg_match_all($regex, $comment);
 
         if (empty($status))
@@ -78,7 +78,7 @@ class SimpleAnnotationParser {
 
     protected static function _tag($anno, & $comment)
     {
-        $regex = '/@' . $anno . '\s+(.*)\r?\n/m';
+        $regex = '/@' . $anno . '\ +(.*)\r?\n/m';
 
         $status = preg_match_all($regex, $comment, $matches, PREG_SET_ORDER);
 
@@ -128,7 +128,7 @@ class SimpleAnnotationParser {
 
     protected static function _APIResponse(& $comment, array & $output)
     {
-        $regex_all = '/@return\s+API\s+Responds:\r?\n((\s\*\s{2,}.*\r?\n)*)/m';
+        $regex_all = '/@return\ +API\ +Responds:\r?\n((\ \*\ {2,}.*\r?\n)*)/m';
 
         $params = array();
         $status = preg_match($regex_all, $comment, $matches);
@@ -138,7 +138,7 @@ class SimpleAnnotationParser {
             return false;
         }
 
-        $regex = '/\s{2,}(\w+)\s+(\w+)((\.\w+)*)\s+(.*\r?\n(\s\*\s{4,}.*\r?\n)*)/m';
+        $regex = '/\ {2,}(\w+)\ +(\w+)((\.\w+)*)\ +(.*\r?\n(\ \*\ {4,}.*\r?\n)*)/m';
 
         $status = preg_match_all($regex, $matches[1], $matches, PREG_SET_ORDER);
 
@@ -166,9 +166,9 @@ class SimpleAnnotationParser {
         }
 
         $details = array(
-            '_name' => empty($subname) ? $name: $subname,
-            '_type' => $match[1],
-            '_description' => SimpleAnnotationParser::_strip(trim($match[5]), 4)
+            'name' => empty($subname) ? $name: $subname,
+            'type' => $match[1],
+            'description' => SimpleAnnotationParser::_strip(trim($match[5]), 4)
         );
 
         if (empty($subname))
@@ -186,8 +186,12 @@ class SimpleAnnotationParser {
             return false;
         }
 
-        $i = array_shift($key);
+        $i = '.' . array_shift($key);
 
+        if (empty($array[$i]))
+        {
+            $array[$i] = array();
+        }
         if (empty($key))
         {
             return $array[$i] = $value;
@@ -198,7 +202,7 @@ class SimpleAnnotationParser {
 
     protected static function _return(& $comment, array & $output)
     {
-        $regex = '/@return\s+(\w+)\s+(.*\r?\n(\s\*\s{2,}.*\r?\n)*)/m';
+        $regex = '/@return\ +(\w+)\ +(.*\r?\n(\ \*\ {2,}.*\r?\n)*)/m';
 
         $params = array();
         $status = preg_match_all($regex, $comment, $matches, PREG_SET_ORDER);
@@ -208,12 +212,19 @@ class SimpleAnnotationParser {
             return false;
         }
 
+        $matches = array_pop($matches);
+
+        $output['response'] = array(
+            'type' => $matches[1],
+            'description' => SimpleAnnotationParser::_strip(trim($matches[2]))
+        );
+
         $comment = preg_replace($regex, "\n", $comment);
     }
 
     protected static function _params(& $comment, array & $output)
     {
-        $regex = '/@param\s+(\w+)\s+(\w+)\s+\{(\d+)(\,\d+)?\}\s+(.*\r?\n(\s\*\s{2,}.*\r?\n)*)/m';
+        $regex = '/@param\ +(\w+)\ +(\w+)\ +\{(\d+)(\,\d+)?\}\ +(.*\r?\n(\ \*\ {2,}.*\r?\n)*)/m';
 
         $params = array();
         $status = preg_match_all($regex, $comment, $matches, PREG_SET_ORDER);
@@ -244,7 +255,7 @@ class SimpleAnnotationParser {
 
     protected static function _strip($comment, $indents = 1)
     {
-        $regex = '/^\/?\s?\*(\s{' . $indents . '}|\*|\/)/m';
+        $regex = '/^\/?\ ?\*(\ {' . $indents . '}|\*|\/)/m';
         return SimpleAnnotationParser::toLiteralWhitespace(trim(preg_replace($regex, '', $comment)));
     }
 

@@ -1,6 +1,0 @@
-{
-    "output": "anno.phar",
-    "main": "bin/main.php",
-    "files": [],
-    "stub": true
-}
