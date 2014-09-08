@@ -1,15 +1,15 @@
 php-anno
 ========
 
-PHP DocBlock Annotation Document generator
+PHP DocBlock Annotation Document generator. Allows Multiline and docs written in MD
 
 Supported Annotations:
 
-@see
-@package
-@version
-@param
-@return
+* @see
+* @package
+* @version
+* @param
+* @return
 
 API Special Format:
 
