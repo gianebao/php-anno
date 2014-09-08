@@ -128,7 +128,7 @@ class SimpleAnnotationParser {
 
     protected static function _APIResponse(& $comment, array & $output)
     {
-        $regex_all = '/@return\ +API\ +Responds:\r?\n((\ \*\ {2,}.*\r?\n)*)/m';
+        $regex_all = '/@return\ +API\ +Responds:\r?\n((\ +\*\ {2,}.*\r?\n)*)/m';
 
         $params = array();
         $status = preg_match($regex_all, $comment, $matches);
@@ -138,7 +138,7 @@ class SimpleAnnotationParser {
             return false;
         }
 
-        $regex = '/\ {2,}(\w+)\ +(\w+)((\.\w+)*)\ +(.*\r?\n(\ \*\ {4,}.*\r?\n)*)/m';
+        $regex = '/\ {2,}(\w+)\ +(\w+)((\.\w+)*)\ +(.*\r?\n(\ +\*\ {4,}.*\r?\n)*)/m';
 
         $status = preg_match_all($regex, $matches[1], $matches, PREG_SET_ORDER);
 
@@ -202,7 +202,7 @@ class SimpleAnnotationParser {
 
     protected static function _return(& $comment, array & $output)
     {
-        $regex = '/@return\ +(\w+)\ +(.*\r?\n(\ \*\ {2,}.*\r?\n)*)/m';
+        $regex = '/@return\ +(\w+)\ +(.*\r?\n(\ +\*\ {2,}.*\r?\n)*)/m';
 
         $params = array();
         $status = preg_match_all($regex, $comment, $matches, PREG_SET_ORDER);
@@ -224,7 +224,7 @@ class SimpleAnnotationParser {
 
     protected static function _params(& $comment, array & $output)
     {
-        $regex = '/@param\ +(\w+)\ +(\w+)\ +\{(\d+)(\,\d+)?\}\ +(.*\r?\n(\ \*\ {2,}.*\r?\n)*)/m';
+        $regex = '/@param\ +(\w+)\ +(\w+)\ +\{(\d+)(\,\d+)?\}\ +(.*\r?\n(\ +\*\ {2,}.*\r?\n)*)/m';
 
         $params = array();
         $status = preg_match_all($regex, $comment, $matches, PREG_SET_ORDER);
@@ -255,7 +255,7 @@ class SimpleAnnotationParser {
 
     protected static function _strip($comment, $indents = 1)
     {
-        $regex = '/^\/?\ ?\*(\ {' . $indents . '}|\*|\/)/m';
+        $regex = '/^\/?\ *\*(\ {' . $indents . '}|\*|\/)/m';
         return SimpleAnnotationParser::toLiteralWhitespace(trim(preg_replace($regex, '', $comment)));
     }
 
