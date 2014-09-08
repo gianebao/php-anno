@@ -262,7 +262,7 @@ class SimpleAnnotationParser {
     public static function toLiteralWhitespace($string)
     {
         return str_replace(array("\t"), '\t',
-            str_replace(array("\r\n", "\r", "\n"), '\n', $string)
+            str_replace(array("\r\n", "\r", "\n"), "\n", $string)
         );
     }
 
