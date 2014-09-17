@@ -66,8 +66,6 @@ if (!is_dir($data_folder) && !mkdir($data_folder, 0755, true))
 
 $data_folder .= DIRECTORY_SEPARATOR;
 
-echo json_encode($docs);
-
 do
 {
     $doc = array_shift($docs);
