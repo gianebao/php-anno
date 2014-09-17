@@ -3,6 +3,15 @@ php-anno
 
 PHP DocBlock Annotation Document generator. Allows Multiline and docs written in MD
 
+Options:
+
+* --bootstrap : boostrap script for the target
+* --output : target output directory
+* --class_ns : namespace of classes that will be covered.
+* --method_ns : namespace of methods that will be covered.
+* --verbose : extra messages
+* --help : displays help
+
 Supported Annotations:
 
 * @see

@@ -10,10 +10,28 @@ $opt_long = array(
     'bootstrap:',
     'output:',
     'class_ns:',
-    'method_ns:'
+    'method_ns:',
+    'verbose',
+    'help'
 );
 
 $options = SimpleAnnotation::getOptions(getopt(null, $opt_long));
+
+
+if (isset($options['help']))
+{
+    exit(
+    "PHP DocBlock Annotation Document generator. Allows Multiline and docs written in MD\n"
+    ."\n"
+    ."Options:\n"
+    ."\n"
+    ." --bootstrap : boostrap script for the target\n"
+    ." --output : target output directory\n"
+    ." --class_ns : namespace of classes that will be covered.\n"
+    ." --method_ns : namespace of methods that will be covered.\n"
+    ." --verbose : extra messages\n"
+    ." --help : displays help\n\n");
+}
 
 if (empty($options['output']))
 {
@@ -48,11 +66,13 @@ if (!is_dir($data_folder) && !mkdir($data_folder, 0755, true))
 
 $data_folder .= DIRECTORY_SEPARATOR;
 
+echo json_encode($docs);
+
 do
 {
     $doc = array_shift($docs);
     $json_doc = json_encode($doc);
-
+    
     $filename = md5($json_doc) . '.json';
     $file = $data_folder . $filename;
     file_put_contents($file, $json_doc);

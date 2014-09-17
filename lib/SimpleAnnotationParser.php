@@ -2,10 +2,25 @@
 
 class SimpleAnnotationParser {
 
+    const SINGLE_FLAG = '/@:annotation\ +(.*)/';
+    const TAG = '/@:annotation\ +(.*)\r?\n/m';
+    const API_RESPONSE_ALL = '/@return\ +API\ +Responds:\r?\n((\ +\*\ {2,}.*\r?\n)*)/m';
+    const API_RESPONSE_ITEM = '/\ {2,}(\w+)\ +(\w+)((\.\w+)*)\ +(.*\r?\n(\ +\*\ {4,}.*\r?\n)*)/m';
+    const RESPONSE = '/@return\ +(\w+)\ +(.*\r?\n(\ +\*\ {2,}.*\r?\n)*)/m';
+    const PARAMS = '/@param\ +(\w+)\ +(\w+)\ +\{(\d+)(\,\d+)?\}\ +(.*\r?\n(\ +\*\ {2,}.*\r?\n)*)/m';
+    const STRIP = '/^\/?\ *\*(\ {:indentCount}|\*|\/|(\r?\n))/m';
+    
+    public static function standard_indents($comment)
+    {
+        return str_replace("\t", '    ', $comment);
+    }
+    
     public static function classComment($comment)
     {
         $output = array();
-
+        
+        $comment = SimpleAnnotationParser::standard_indents($comment);
+        
         SimpleAnnotationParser::_singleFlag('ignore', $comment, $output);
 
         if (!empty($output['ignore']))
@@ -30,7 +45,7 @@ class SimpleAnnotationParser {
             SimpleAnnotationParser::_tag('version', $comment),
             $output
         );
-
+        
         $output['description'] = SimpleAnnotationParser::_strip($comment);
 
         return $output;
@@ -39,7 +54,8 @@ class SimpleAnnotationParser {
     public static function methodComment($comment)
     {
         $output = array();
-
+        
+        $comment = SimpleAnnotationParser::standard_indents($comment);
         SimpleAnnotationParser::_singleFlag('ignore', $comment, $output);
 
         if (!empty($output['ignore']))
@@ -64,7 +80,7 @@ class SimpleAnnotationParser {
 
     protected static function _singleFlag($anno, & $comment, array & $output)
     {
-        $regex = '/@' . $anno . '\ +(.*)/';
+        $regex = strtr(SimpleAnnotationParser::SINGLE_FLAG, array(':annotation' => $anno));
         $status = preg_match_all($regex, $comment);
 
         if (empty($status))
@@ -78,7 +94,7 @@ class SimpleAnnotationParser {
 
     protected static function _tag($anno, & $comment)
     {
-        $regex = '/@' . $anno . '\ +(.*)\r?\n/m';
+        $regex = strtr(SimpleAnnotationParser::TAG, array(':annotation' => $anno));
 
         $status = preg_match_all($regex, $comment, $matches, PREG_SET_ORDER);
 
@@ -128,7 +144,7 @@ class SimpleAnnotationParser {
 
     protected static function _APIResponse(& $comment, array & $output)
     {
-        $regex_all = '/@return\ +API\ +Responds:\r?\n((\ +\*\ {2,}.*\r?\n)*)/m';
+        $regex_all = SimpleAnnotationParser::API_RESPONSE_ALL;
 
         $params = array();
         $status = preg_match($regex_all, $comment, $matches);
@@ -138,7 +154,7 @@ class SimpleAnnotationParser {
             return false;
         }
 
-        $regex = '/\ {2,}(\w+)\ +(\w+)((\.\w+)*)\ +(.*\r?\n(\ +\*\ {4,}.*\r?\n)*)/m';
+        $regex = SimpleAnnotationParser::API_RESPONSE_ITEM;
 
         $status = preg_match_all($regex, $matches[1], $matches, PREG_SET_ORDER);
 
@@ -202,7 +218,7 @@ class SimpleAnnotationParser {
 
     protected static function _return(& $comment, array & $output)
     {
-        $regex = '/@return\ +(\w+)\ +(.*\r?\n(\ +\*\ {2,}.*\r?\n)*)/m';
+        $regex = SimpleAnnotationParser::RESPONSE;
 
         $params = array();
         $status = preg_match_all($regex, $comment, $matches, PREG_SET_ORDER);
@@ -224,7 +240,7 @@ class SimpleAnnotationParser {
 
     protected static function _params(& $comment, array & $output)
     {
-        $regex = '/@param\ +(\w+)\ +(\w+)\ +\{(\d+)(\,\d+)?\}\ +(.*\r?\n(\ +\*\ {2,}.*\r?\n)*)/m';
+        $regex = SimpleAnnotationParser::PARAMS;
 
         $params = array();
         $status = preg_match_all($regex, $comment, $matches, PREG_SET_ORDER);
@@ -255,7 +271,7 @@ class SimpleAnnotationParser {
 
     protected static function _strip($comment, $indents = 1)
     {
-        $regex = '/^\/?\ *\*(\ {' . $indents . '}|\*|\/)/m';
+        $regex = strtr(SimpleAnnotationParser::STRIP, array(':indentCount' => $indents));
         return SimpleAnnotationParser::toLiteralWhitespace(trim(preg_replace($regex, '', $comment)));
     }
 

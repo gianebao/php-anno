@@ -6,6 +6,8 @@ class SimpleAnnotation {
 
     protected $_options = array();
 
+    protected static $_verbose = false;
+    
     public function __construct(array $options = array())
     {
         if (!empty($options['bootstrap']))
@@ -18,14 +20,19 @@ class SimpleAnnotation {
             include $options['bootstrap'];
         }
 
+        SimpleAnnotation::$_verbose = isset($options['verbose']);
+
         $this->_options = $options;
     }
 
     public static function message ($message, $is_error = false)
     {
-        echo true === $is_error ? '[ERROR] ': '[MESSAGE] ';
-
-        echo $message . "\n";
+        
+        if (SimpleAnnotation::$_verbose)
+        {
+            echo true === $is_error ? '[ERROR] ': '[MESSAGE] ';
+            echo $message . "\n";
+        }
 
         if (true === $is_error)
         {
@@ -82,31 +89,52 @@ class SimpleAnnotation {
         SimpleAnnotation::message('File or Directory does not exist.', true);
     }
 
+    
+    public static function load($file)
+    {
+        if (in_array($file, get_included_files()))
+        {
+            return false;
+        }
+        
+        require $file;
+        return true;
+    }
+    
     public function filter(array $files)
     {
-        $output = array();
+        $_output = array();
 
         foreach ($files as $file)
         {
             SimpleAnnotation::message('Evaluating `' . $file .'`...');
             $declared_classes = get_declared_classes();
-            include $file;
+            
+            if (!SimpleAnnotation::load($file))
+            {
+                continue;
+            }
+            
             $classes = array_diff(get_declared_classes(), $declared_classes);
 
-            if (!empty($classes))
+            if (empty($classes))
             {
-                foreach ($classes as $class)
+                $this->parseSimple($file, $_output);
+                continue;
+            }
+            
+            foreach ($classes as $class)
+            {
+                $doc = $this->parseClass(new ReflectionClass($class));
+                
+                if (!empty($doc))
                 {
-                    $this->parseClass(new ReflectionClass($class), $output);
+                    $_output[] = $doc;
                 }
             }
-            else
-            {
-                $this->parseSimple($file, $output);
-            }
         }
-
-        return $output;
+        
+        return $_output;
     }
 
     public function parseSimple($file, array & $output = array())
@@ -139,15 +167,24 @@ class SimpleAnnotation {
                 continue;
             }
 
-            $contents[] = SimpleAnnotationParser::methodComment($comment);
+            $comment = SimpleAnnotationParser::methodComment($comment);
+            
+            if (!empty($comment))
+            {
+                $contents[] = $comment;
+            }
         }
 
+        if (empty($contents))
+        {
+            return false;
+        }
+        
         $doc['contents'] = $contents;
-
         $output[] = $doc;
     }
 
-    public function parseClass(ReflectionClass $object, array & $output = array())
+    public function parseClass(ReflectionClass $object)
     {
         $doc = array();
         $ns = 'class_ns';
@@ -160,28 +197,41 @@ class SimpleAnnotation {
             return false;
         }
 
+        $name = $object->getShortName();
+        
+        if (!empty($this->_options[$ns]) && 0 !== strpos($name, $this->_options[$ns]))
+        {
+            SimpleAnnotation::message('Class `' . $object->getName() .'` ignored: Did not meet NS requirement.');
+            return false;
+        }
+        
         $doc['name'] = trim(
             str_replace(
                 array('\\', '_'), '/', !empty($this->_options[$ns])
-                ? str_replace($this->_options[$ns], '', $object->getShortName())
-                : $object->getShortName()
+                ? str_replace($this->_options[$ns], '', $name)
+                : $name
             ), '/');
 
         $doc = array_merge($doc, SimpleAnnotationParser::classComment($comments));
 
-        if (empty($doc['package']) || !empty($doc['ignore']))
+        if (empty($doc['package']) || isset($doc['ignore']))
         {
             SimpleAnnotation::message('Class `' . $object->getName() .'` ignored: Implied or does not belong to a package.');
             return false;
         }
-
+        
         $methods = $object->getMethods(ReflectionMethod::IS_PUBLIC);
 
         $method_docs = array();
 
         foreach ($methods as $method)
         {
-            $this->parseMethod($method, $method_docs);
+            $method = $this->parseMethod($method);
+            
+            if (!empty($method))
+            {
+                $method_docs[] = $method;
+            }
         }
 
         if (!empty($method_docs))
@@ -189,10 +239,10 @@ class SimpleAnnotation {
             $doc['methods'] = $method_docs;
         }
 
-        return $output[] = $doc;
+        return $doc;
     }
 
-    public function parseMethod(ReflectionMethod $object, array & $output = array())
+    public function parseMethod(ReflectionMethod $object)
     {
         $doc = array();
         $ns = 'method_ns';
@@ -205,12 +255,20 @@ class SimpleAnnotation {
             return false;
         }
 
+        $name = $object->getShortName();
+        
+        if (!empty($this->_options[$ns]) && 0 !== strpos($name, $this->_options[$ns]))
+        {
+            SimpleAnnotation::message('Method `' . $object->getName() .'` ignored: Did not meet NS requirement.');
+            return false;
+        }
+        
         $doc['name'] = trim(
             !empty($this->_options[$ns])
-                ? str_replace($this->_options[$ns], '', $object->getShortName())
-                : $object->getShortName(),
+                ? str_replace($this->_options[$ns], '', $name)
+                : $name,
             '_');
 
-        $output = array_merge($doc, SimpleAnnotationParser::methodComment($comments));
+        return array_merge($doc, SimpleAnnotationParser::methodComment($comments));
     }
 }
