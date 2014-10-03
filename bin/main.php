@@ -17,8 +17,15 @@ $opt_long = array(
 
 $options = SimpleAnnotation::getOptions(getopt(null, $opt_long));
 
+if (empty($options) && file_exists('anno.json'))
+{
+    $options = json_decode(file_get_contents('anno.json'), true);
+    
+    $options = array_merge($options, $options['target']);
+    unset($options['target']);
+}
 
-if (isset($options['help']))
+if (isset($options['help']) || empty($options))
 {
     exit(
     "PHP DocBlock Annotation Document generator. Allows Multiline and docs written in MD\n"
@@ -40,6 +47,8 @@ if (empty($options['output']))
 
 $options['output'] = rtrim($options['output'], DIRECTORY_SEPARATOR);
 
+var_dump($options['output']);
+
 if (!is_dir($options['output']) && !mkdir($options['output'], 0755, true))
 {
     SimpleAnnotation::message('Cannot create `' . $options['output'] . '`.', true);
@@ -49,7 +58,14 @@ $options['output'] .= DIRECTORY_SEPARATOR;
 
 $anno = new SimpleAnnotation($options);
 
-$docs = $anno->filter(SimpleAnnotation::getFiles($options[0]));
+$docs = array();
+
+$i = 0;
+
+do
+{
+    $docs = array_merge($docs, $anno->filter(SimpleAnnotation::getFiles($options[$i])));
+} while (!empty($options[++$i]));
 
 if (empty($docs))
 {
@@ -74,7 +90,7 @@ do
     $filename = md5($json_doc) . '.json';
     $file = $data_folder . $filename;
     file_put_contents($file, $json_doc);
-    $packages[] = array('package' => $doc['package'], 'href' => $filename);
+    $packages[] = array('package' => $doc['package'], 'name' => $doc['name'], 'href' => $filename);
 
 } while(!empty($docs));
 

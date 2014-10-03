@@ -22,6 +22,13 @@ Supported Annotations:
 
 API Special Format:
 
+To generate an API Request Param
+
+@param   datatype      name       {min}      fsdfsdfsfsdfsd
+@param   datatype      name       {min, max} fsdfsdfsfsdfsd
+
+set min to 0 to indicate it as `optional`
+
 To generate an API Response
 <pre>
 /**
