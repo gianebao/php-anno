@@ -42,7 +42,7 @@ class SimpleAnnotationParser {
         
         if (!empty($output['name']))
         {
-            $output['name'] = $output['name'][0];
+            $output['name'] = array_pop($output['name']);
         }
         
         SimpleAnnotationParser::_unique(
@@ -80,6 +80,17 @@ class SimpleAnnotationParser {
             $output
         );
 
+        SimpleAnnotationParser::_unique(
+            'name',
+            SimpleAnnotationParser::_tag('name', $comment),
+            $output
+        );
+        
+        if (!empty($output['name']))
+        {
+            $output['name'] = array_pop($output['name']);
+        }
+        
         SimpleAnnotationParser::_params($comment, $output);
         SimpleAnnotationParser::_APIResponse($comment, $output);
         SimpleAnnotationParser::_return($comment, $output);
