@@ -67,6 +67,7 @@ do
     $docs = array_merge($docs, $anno->filter(SimpleAnnotation::getFiles($options[$i])));
 } while (!empty($options[++$i]));
 
+
 if (empty($docs))
 {
     SimpleAnnotation::message('Cannot process anything.', true);

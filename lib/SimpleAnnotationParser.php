@@ -35,6 +35,17 @@ class SimpleAnnotationParser {
         );
 
         SimpleAnnotationParser::_unique(
+            'name',
+            SimpleAnnotationParser::_tag('name', $comment),
+            $output
+        );
+        
+        if (!empty($output['name']))
+        {
+            $output['name'] = $output['name'][0];
+        }
+        
+        SimpleAnnotationParser::_unique(
             'package',
             SimpleAnnotationParser::_tag('package', $comment),
             $output
