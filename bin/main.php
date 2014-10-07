@@ -71,7 +71,9 @@ do
     {
         SimpleAnnotation::message('Processing `' . $readme . '`.');
         $docs[] = array(
-            'package' => str_replace(dirname($options[$i]) . DIRECTORY_SEPARATOR, '', $options[$i]),
+            'package' => array(
+                strtolower(str_replace(array('_', '-'), '/', str_replace(dirname($options[$i]) . DIRECTORY_SEPARATOR, '', $options[$i])))
+            ),
             'name' => str_replace(dirname($options[$i]) . DIRECTORY_SEPARATOR, '', $options[$i]),
             'description' => file_get_contents($readme)
         );
