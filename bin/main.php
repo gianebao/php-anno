@@ -37,6 +37,7 @@ if (isset($options['help']) || empty($options))
     ." --output : target output directory\n"
     ." --class_ns : namespace of classes that will be covered.\n"
     ." --method_ns : namespace of methods that will be covered.\n"
+    ." --include_readme : include the readme.md file in the manifest.\n"
     ." --verbose : extra messages\n"
     ." --help : displays help\n\n");
 }
