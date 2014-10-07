@@ -12,6 +12,7 @@ $opt_long = array(
     'class_ns:',
     'method_ns:',
     'verbose',
+    'include_readme',
     'help'
 );
 
@@ -47,8 +48,6 @@ if (empty($options['output']))
 
 $options['output'] = rtrim($options['output'], DIRECTORY_SEPARATOR);
 
-var_dump($options['output']);
-
 if (!is_dir($options['output']) && !mkdir($options['output'], 0755, true))
 {
     SimpleAnnotation::message('Cannot create `' . $options['output'] . '`.', true);
@@ -65,8 +64,19 @@ $i = 0;
 do
 {
     $docs = array_merge($docs, $anno->filter(SimpleAnnotation::getFiles($options[$i])));
+    
+    $readme = $options[$i] . DIRECTORY_SEPARATOR . 'readme.md';
+    
+    if (isset($options['include_readme']) && is_dir($options[$i]) && file_exists($readme) && '' != trim(file_get_contents($readme)))
+    {
+        SimpleAnnotation::message('Processing `' . $readme . '`.');
+        $docs[] = array(
+            'package' => str_replace(dirname($options[$i]) . DIRECTORY_SEPARATOR, '', $options[$i]),
+            'description' => file_get_contents($readme)
+        );
+    }
+    
 } while (!empty($options[++$i]));
-
 
 if (empty($docs))
 {
@@ -92,7 +102,6 @@ do
     $file = $data_folder . $filename;
     file_put_contents($file, $json_doc);
     $packages[] = array('package' => $doc['package'], 'name' => $doc['name'], 'href' => $filename);
-
 } while(!empty($docs));
 
 file_put_contents($options['output'] . 'manifest.json', json_encode($packages));
