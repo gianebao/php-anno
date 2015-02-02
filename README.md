@@ -14,11 +14,12 @@ Options:
 
 Supported Annotations:
 
-* @see
+* @name
 * @package
-* @version
 * @param
 * @return
+* @see
+* @version
 
 API Special Format:
 
@@ -37,24 +38,15 @@ To generate an API Response
  * @param string banana {1,19} sdfs fgkjdfghdg jdhfghdkgjs fgdjfhgkdgh
  *
  * @return API Responds:
- *  string    name   dfsdjfshfdkjsdf
- *      sdfsdfisdfsdhfjks sdfsdfjshdkfj sdfsjdfhskdfj
- *      sdfsdfisdfsdhfjks sdfsdfjshdkfj sdfsjdfhskdfj
- *      sdfsdfisdfsdhfjks sdfsdfjshdkfj sdfsjdfhskdfj
- *  string   name.api   dfsdjfshfdkjsdf
- *      sdfsdfisdfsdhfjks sdfsdfjshdkfj sdfsjdfhskdfj
- *      sdfsdfisdfsdhfjks sdfsdfjshdkfj sdfsjdfhskdfj
- *      sdfsdfisdfsdhfjks sdfsdfjshdkfj sdfsjdfhskdfj
- *  string   name.api0   dfsdjfshfdkjsdf
- *      sdfsdfisdfsdhfjks sdfsdfjshdkfj sdfsjdfhskdfj
- *      sdfsdfisdfsdhfjks sdfsdfjshdkfj sdfsjdfhskdfj
- *      sdfsdfisdfsdhfjks sdfsdfjshdkfj sdfsjdfhskdfj
- *  string   name.api1   dfsdjfshfdkjsdf
- *      sdfsdfisdfsdhfjks sdfsdfjshdkfj sdfsjdfhskdfj
- *  string name.api1.deeper {1,10} dfsdjfshfdkjsdf
- *  int      image       abu abu abuubububububub
- *      fgdfgdjfglkdfjgdlfkgd
- *      dfgdjfgdklfjgdkg
+ *  string    param1      this is the definition
+ *      which can be multiline if you write
+ *      it like this. You can also use it to create:
+ *      `Markdowns`
+ *  string   param1.api   this means this is a subgroup of *param1*
+ *  string   param1.api0  this is a subgroup of api at index 0
+ *  string   param1.api1  this is a subgroup of api at index 1
+ *  string   param.api1.deeper this is an even deeper subgroup
+ *  int      image        and any variable
  */
 </pre>
 
