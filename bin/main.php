@@ -16,15 +16,15 @@ $opt_long = array(
     'help'
 );
 
-$options = SimpleAnnotation::getOptions(getopt(null, $opt_long));
-
-if (empty($options) && file_exists('anno.json'))
+if (file_exists('anno.json'))
 {
     $options = json_decode(file_get_contents('anno.json'), true);
     
     $options = array_merge($options, $options['target']);
     unset($options['target']);
 }
+
+$options = array_merge($options, SimpleAnnotation::getOptions(getopt(null, $opt_long)));
 
 if (isset($options['help']) || empty($options))
 {
