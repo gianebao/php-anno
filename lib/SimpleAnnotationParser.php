@@ -2,13 +2,14 @@
 
 class SimpleAnnotationParser {
 
-    const SINGLE_FLAG = '/@:annotation\ +(.*)/';
+    const SINGLE_FLAG = '/@:annotation(\ +(.*))?/';
     const TAG = '/@:annotation\ +(.*)\r?\n/m';
     const API_RESPONSE_ALL = '/@return\ +API\ +Responds:\r?\n((\ +\*\ {2,}.*\r?\n)*)/m';
     const API_RESPONSE_ITEM = '/\ {2,}(\w+)\ +(\w+)((\.\w+)*)\ +(.*\r?\n(\ +\*\ {4,}.*\r?\n)*)/m';
     const RESPONSE = '/@return\ +(\w+)\ +(.*\r?\n(\ +\*\ {2,}.*\r?\n)*)/m';
     const PARAMS = '/@param\ +(\w+)\ +(\w+)\ +\{(\d+)(\,\d+)?\}\ +(.*\r?\n(\ +\*\ {2,}.*\r?\n)*)/m';
-    const STRIP = '/^\/?\ *\*(\ {:indentCount}|\*|\/|(\r?\n))/m';
+    const STRIP = '/^\/?\ *\*(\ {:indentCount}|\*\/?)/m';
+    const STRIP_NL = '/^\ *\*\r?\n/m';
     
     public static function standard_indents($comment)
     {
@@ -25,7 +26,7 @@ class SimpleAnnotationParser {
 
         if (!empty($output['ignore']))
         {
-            return $output;
+            return array();
         }
 
         SimpleAnnotationParser::_multiple(
@@ -293,14 +294,22 @@ class SimpleAnnotationParser {
 
     protected static function _strip($comment, $indents = 1)
     {
+        
         $regex = strtr(SimpleAnnotationParser::STRIP, array(':indentCount' => $indents));
-        return SimpleAnnotationParser::toLiteralWhitespace(trim(preg_replace($regex, '', $comment)));
+        
+        $t = SimpleAnnotationParser::toLiteralWhitespace(
+            trim(
+                preg_replace(SimpleAnnotationParser::STRIP_NL, "\n",
+                    preg_replace($regex, '', $comment))
+            ));
+        
+        return $t;
     }
 
     public static function toLiteralWhitespace($string)
     {
         return str_replace(array("\t"), '\t',
-            str_replace(array("\r\n", "\r", "\n"), "\n", $string)
+            str_replace(array("\r\n", "\r", "\n"), '\n', $string)
         );
     }
 
