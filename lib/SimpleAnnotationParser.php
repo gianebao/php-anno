@@ -8,8 +8,8 @@ class SimpleAnnotationParser {
     const API_RESPONSE_ITEM = '/\ {2,}(\w+)\ +(\w+)((\.\w+)*)\ +(.*\r?\n(\ +\*\ {4,}.*\r?\n)*)/m';
     const RESPONSE = '/@return\ +(\w+)\ +(.*\r?\n(\ +\*\ {2,}.*\r?\n)*)/m';
     const PARAMS = '/@param\ +(\w+)\ +(\w+)\ +\{(\d+)(\,\d+)?\}\ +(.*\r?\n(\ +\*\ {2,}.*\r?\n)*)/m';
-    const STRIP = '/^\/?\ *\*(\ {:indentCount}|\*\/?)/m';
-    const STRIP_NL = '/^\ *\*\r?\n/m';
+    const STRIP = '/^\/?\ *\*(\ {:indentCount}|\*?\/?)/m';
+    const STRIP_NL = '/^\ *\*(\r?\n|\ {:indentCount}$)/m';
     
     public static function standard_indents($comment)
     {
@@ -296,11 +296,12 @@ class SimpleAnnotationParser {
     {
         
         $regex = strtr(SimpleAnnotationParser::STRIP, array(':indentCount' => $indents));
+        $regex_nl = strtr(SimpleAnnotationParser::STRIP_NL, array(':indentCount' => $indents));
         
         $t = SimpleAnnotationParser::toLiteralWhitespace(
-            trim(
-                preg_replace(SimpleAnnotationParser::STRIP_NL, "\n",
-                    preg_replace($regex, '', $comment))
+                    trim(preg_replace($regex, '', 
+                                      preg_replace($regex_nl, "\n",
+                                                   $comment))
             ));
         
         return $t;
@@ -309,7 +310,7 @@ class SimpleAnnotationParser {
     public static function toLiteralWhitespace($string)
     {
         return str_replace(array("\t"), '\t',
-            str_replace(array("\r\n", "\r", "\n"), '\n', $string)
+            str_replace(array("\r\n", "\r"), "\n", $string)
         );
     }
 
