@@ -25,6 +25,27 @@ class SimpleAnnotation {
         $this->_options = $options;
     }
 
+    public static function getFromTemplate($data, $template, $output = '')
+    {
+        $hasHeader = !empty($output);
+        foreach ($data as $item)
+        {
+            if (!empty($item['type']) && 'markdown' == $item['type'])
+            {
+                $output .= $item['description'];
+            }
+            else
+            {
+                ob_start();
+                include $template;
+                $output .= ob_get_clean();
+            }
+            $output .= "\n\n";
+        }
+
+        return $output;
+    }
+    
     public static function message ($message, $is_error = false)
     {
         
