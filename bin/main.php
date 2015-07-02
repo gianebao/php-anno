@@ -104,6 +104,8 @@ if (!is_file($options['output']) && !is_dir($options['output']) && !mkdir($optio
 
 if (!empty($options['template']))
 {
+    require LIBDIR . 'TemplateHelper.php';
+    
     if ('slate' == $options['template'])
     {
         $includes = $options['output'] . DIRECTORY_SEPARATOR . 'includes';
