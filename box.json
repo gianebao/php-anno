@@ -3,7 +3,10 @@
     "main": "bin/main.php",
     "files": [
         "lib/SimpleAnnotation.php",
-        "lib/SimpleAnnotationParser.php"
+        "lib/SimpleAnnotationParser.php",
+        "lib/TemplateHelper.php",
+        "lib/template/slate/includes.php",
+        "lib/template/slate/index.php"
     ],
     "stub": true
 }
