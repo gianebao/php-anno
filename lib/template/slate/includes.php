@@ -7,8 +7,11 @@
 
 <?php if (!empty($item['methods'])):?>
 <?php foreach ($item['methods'] as $method):?>
+<?php if (false !== strpos($method['name'], ' ')):?>
+##<?php if ($hasHeader):?>#<?php endif?> <?php echo $method['name']?>
+<?php else:?>
 ##<?php if ($hasHeader):?>#<?php endif?> <?php echo strtoupper($method['name'])?> /<?php echo strtolower($item['name'])?>
-
+<?php endif?>
 
 <?php if (!empty($method['response'])):?>
 > This resource responds with:
@@ -25,7 +28,7 @@
 | Parameter | Required | Max Length | Description |
 | --------- | -------- | ---------- | ----------- |
 <?php foreach ($method['requests'] as $request):?>
-| <?php echo $request['name']?> | <?php echo $request['optional'] ? 'false': 'true'?> | <?php echo $request['length']['max']?> | <?php echo $request['description']?> |
+| `<?php echo $request['name']?>` | <?php echo $request['optional'] ? '`no`': '`yes`'?> | <?php echo $request['length']['max']?> | <?php echo $request['description']?> |
 <?php endforeach?>
 <?php endif?>
 
