@@ -13,6 +13,8 @@
 ##<?php if ($hasHeader):?>#<?php endif?> <?php echo strtoupper($method['name'])?> /<?php echo strtolower($item['name'])?>
 <?php endif?>
 
+<?php echo $method['description']?>
+
 <?php if (!empty($method['response'])):?>
 > This resource responds with:
 >
@@ -20,9 +22,6 @@
 <?php TemplateHelper::mdResponse($response)?>
 <?php endforeach?>
 <?php endif?>
-
-<?php echo $method['description']?>
-
 
 <?php if (!empty($method['requests'])):?>
 | Parameter | Required | Max Length | Description |
@@ -36,10 +35,14 @@
 <?php endif?>
 
 <?php if (!empty($item['contents'])):?>
-| Code | Description |
-| ---- | ----------- |
 <?php foreach ($item['contents'] as $content):?>
-| `<?php echo $content['name']?>` | <?php echo $content['description']?> |
+##<?php if ($hasHeader):?>#<?php endif?> <?php echo $content['name']?>
+
+
+<a href="#<?php echo TemplateHelper::permaName($content['name'])?>">[permalink]</a>
+
+
+<?php echo $content['description']?>
+
 <?php endforeach?>
-</table>
 <?php endif?>
