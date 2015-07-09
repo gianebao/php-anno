@@ -7,11 +7,10 @@
 
 <?php if (!empty($item['methods'])):?>
 <?php foreach ($item['methods'] as $method):?>
-<?php if (false !== strpos($method['name'], ' ')):?>
-##<?php if ($hasHeader):?>#<?php endif?> <?php echo $method['name']?>
-<?php else:?>
-##<?php if ($hasHeader):?>#<?php endif?> <?php echo strtoupper($method['name'])?> /<?php echo strtolower($item['name'])?>
-<?php endif?>
+<?php $name = false === strpos($method['name'], ' ') ? (strtoupper($method['name']) . ' /' . strtolower($item['name'])): $method['name']?>
+##<?php if ($hasHeader):?>#<?php endif?> <?php echo $name?>
+
+<a href="#<?php echo TemplateHelper::permaName($name)?>">[permalink]</a>
 
 <?php echo $method['description']?>
 

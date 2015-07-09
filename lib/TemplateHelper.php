@@ -19,6 +19,6 @@ class TemplateHelper
     
     public static function permaName($string)
     {
-        return strtolower(preg_replace('/[^a-z0-9_]/i', '-', $string));
+        return trim(strtolower(preg_replace('/[^a-z0-9_]+/i', '-', $string)), '-');
     }
 }

@@ -109,18 +109,6 @@ class SimpleAnnotation {
 
         SimpleAnnotation::message('File or Directory does not exist.', true);
     }
-
-    
-    public static function load($file)
-    {
-        if (in_array($file, get_included_files()))
-        {
-            return false;
-        }
-        
-        require $file;
-        return true;
-    }
     
     public function filter(array $files)
     {
@@ -129,15 +117,18 @@ class SimpleAnnotation {
         foreach ($files as $file)
         {
             SimpleAnnotation::message('Evaluating `' . $file .'`...');
+            $classes = array();
             $declared_classes = get_declared_classes();
             
-            if (!SimpleAnnotation::load($file))
+            if (in_array($file, get_included_files()))
             {
                 continue;
             }
             
+            require $file;
+            
             $classes = array_diff(get_declared_classes(), $declared_classes);
-
+            
             if (empty($classes))
             {
                 $this->parseSimple($file, $_output);
