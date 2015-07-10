@@ -136,8 +136,16 @@ if (!empty($options['template']))
             file_put_contents($file, SimpleAnnotation::getFromTemplate($items, $slateTemplate . 'includes.php', $header));
         }
 
+        $manifestFile = 'index';
+        
+        if (!empty($options['slate']['manifest']))
+        {
+            $manifestFile = $options['slate']['manifest'];
+            unset($options['slate']['manifest']);
+        }
+        
         file_put_contents(
-            $options['output'] . DIRECTORY_SEPARATOR . 'index.md',
+            $options['output'] . DIRECTORY_SEPARATOR . $manifestFile . '.md',
             SimpleAnnotation::getFromTemplate(empty($options['slate']) ? []: [$options['slate']], $slateTemplate . 'index.php')
         );
         exit();
